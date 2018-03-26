@@ -4,6 +4,9 @@ const Wiki = require('../db/models').Wiki;
 const User = require('../db/models').User;
 const Collaborator = require('../db/models').Collaborator;
 const markdown = require( "markdown" ).markdown;
+const Authorizer = require("../policies/wiki");
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 module.exports = {
 	// all public wikis are viewable
@@ -11,12 +14,32 @@ module.exports = {
 	// role 1 (premium) = private: false or owner or are collaborators
 	// role 2 (admin) = show all
 	index(req, res, next){
+		const role = req.user.role;
+		var options = {};  // no filter / show all by default
+
+		if (role == 0)		// Standard user
+			options = {private: false};
+		else if (role == 1) // Premium user
+			options = {
+				[Op.or]: [{private: false}, {UserId: req.user.id}, { '$collaborators.userId$': req.user.id }]
+			};
+
 		Wiki.findAll({
-	    })
+			include: [{
+     			model: Collaborator, as: "collaborators", attributes: ["userId"]
+			}],
+		  	where: options
+		})
 	    .then(wikis => {
+	   		for (var i =0; i < wikis.length; i++)
+	   			for  (var j =0; j < wikis[j].collaborators.length; j++)
+	   				if (wikis[i].collaborators[j])
+	   					console.log(wikis[i].id, wikis[i].title, wikis[i].collaborators[j].userId);
+
 			res.render('wikis/index.ejs', {wikis});
 		})
 	    .catch(err => {
+	    	console.log('error', err);
 	    	res.render('wikis/index.ejs', { title: 'Wikis'});
 	    });
    	},

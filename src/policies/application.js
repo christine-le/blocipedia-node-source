@@ -10,7 +10,7 @@ module.exports = class ApplicationPolicy {
   }
 
   _isAdmin() {
-    return this.user && this.user.role == "admin";
+    return this.user && this.user.role == 2;
   }
 
   new() {
@@ -22,7 +22,7 @@ module.exports = class ApplicationPolicy {
   }
 
   show() {
-    return true;
+    return false;
   }
 
   edit() {

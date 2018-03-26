@@ -6,7 +6,6 @@ const Collaborator = require('../db/models').Collaborator;
 
 module.exports = {
    	destroy(req, res, next){
-   		console.log('req.params.id', req.params.collabId);
 		Collaborator.destroy({where: {id: req.params.collabId}})
 	    .then(collaborator => {
 	    	req.flash("notice", "Collaborator was removed successfully.")
