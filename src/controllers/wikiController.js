@@ -4,7 +4,6 @@ const Wiki = require('../db/models').Wiki;
 const User = require('../db/models').User;
 const Collaborator = require('../db/models').Collaborator;
 const markdown = require( "markdown" ).markdown;
-const Authorizer = require("../policies/wiki");
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 

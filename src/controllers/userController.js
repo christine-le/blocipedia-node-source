@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../db/models').User;
+const Wiki = require('../db/models').Wiki;
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const stripe = require("stripe")(process.env.stripeSecret);
@@ -73,10 +74,20 @@ module.exports = {
 		  	user.role = 0;
 		  	user.save();
 
-		  	req.flash("notice", "You are now a standard user!");
-			res.redirect("/");
+		  	Wiki.update({			// Make all wikis private
+	   			private: false
+			}, {
+				where: { 
+					UserId: req.params.id 
+				}
+			})
+			.then(wiki => {
+				req.flash("notice", "You are now a standard user!");
+				res.redirect("/");
+			})
 		})
 	    .catch(err => {
+	    	console.log('testing', err);
 	    	req.flash("notice", "Error upgrading.  Please try again.");
 	    	res.redirect(`/users/edit/${req.params.id}`);
 	    });
